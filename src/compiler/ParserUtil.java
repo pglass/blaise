@@ -1,11 +1,14 @@
 package compiler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ParserUtil {
 
     public static class TypeMismatchException extends Exception {
-        public TypeMismatchException(String message) { super(message); }
+        public TypeMismatchException(String message) {
+            super(message);
+        }
     }
 
     /* This resolves conflicts between user-defined label numbers
@@ -88,11 +91,12 @@ public class ParserUtil {
         return result;
     }
 
-    /** Construct an ArraySymbol from the given list of subranges and the contained type.
+    /**
+     * Construct an ArraySymbol from the given list of subranges and the contained type.
      * These come from an array type declaration in the source that looks like, say,
      * {@code array[1..10, 2..5, 3..7][1..8] of real}. In this case, the containedType
      * represents type real, and the list represents the four subranges.
-     *
+     * <p/>
      * Note: If we encounter syntax like {@code array[1..10] of array[1..4]} then
      * containedType is an ArraySymbol representing {@code array[1..4]} (already constructed).
      * The subrange list will contain a subrange representing {@code 1..10}.
@@ -129,7 +133,7 @@ public class ParserUtil {
                 return (Symbol.SubrangeSymbol) stubSymbol.typeSymbol;
         } else {
             throw new ParserUtil.TypeMismatchException(
-                "Cannot interpret TypeSymbol (" + typeSymbol.toString() + ") as a subrange for an array");
+                    "Cannot interpret TypeSymbol (" + typeSymbol.toString() + ") as a subrange for an array");
         }
         return null;
     }

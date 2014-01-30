@@ -15,6 +15,7 @@ public class Parser {
 
     /**
      * Construct a new Parser
+     *
      * @param filename A (Pascal) source file
      * @throws FileNotFoundException
      */
@@ -50,6 +51,7 @@ public class Parser {
 
     /**
      * Parse the source file.
+     *
      * @return A Token that represents the root of an abstract syntax tree
      * which can be traversed by a code generator.
      */
@@ -59,16 +61,17 @@ public class Parser {
 
     /**
      * Parse the beginning of the source file: PROGRAM ID(ID); BLOCK.
+     *
      * @return A Token that represents the root of an abstract syntax tree.
      */
     private Token parseProgram() {
         Token program = this.expectNextToken(TokenType.PROGRAM);
-        Token name    = this.expectNextToken(TokenType.IDENTIFIER);
+        Token name = this.expectNextToken(TokenType.IDENTIFIER);
         this.expectNextToken(TokenType.LPAREN);
-        Token stream  = this.expectNextToken(TokenType.IDENTIFIER);
+        Token stream = this.expectNextToken(TokenType.IDENTIFIER);
         this.expectNextToken(TokenType.RPAREN);
         this.expectNextToken(TokenType.SEMICOLON);
-        Token block   = this.parseBlock();
+        Token block = this.parseBlock();
         this.expectNextToken(TokenType.DOT);
         program.children.add(name);
         program.children.add(stream);
@@ -108,13 +111,17 @@ public class Parser {
         }
     }
 
-    /** Consume an integer token and install it in the internal label list */
+    /**
+     * Consume an integer token and install it in the internal label list
+     */
     private void readLabelNumber() {
         Token label = this.expectNextToken(TokenType.INTEGER);
         this.labelList.addUserLabel(label);
     }
 
-    /** Parse all const definitions: {@code const DEF1; DEF2; ...; DEFN;} */
+    /**
+     * Parse all const definitions: {@code const DEF1; DEF2; ...; DEFN;}
+     */
     private void readConstSection() {
         if (this.peekToken().isType(TokenType.CONST)) {
             this.nextToken();
@@ -124,10 +131,12 @@ public class Parser {
         }
     }
 
-    /** Parse a single const definition: {@code ID = VALUE;} and install in the symbol table. */
+    /**
+     * Parse a single const definition: {@code ID = VALUE;} and install in the symbol table.
+     */
     private void readConstDefinition() {
-        Token id    = this.expectNextToken(TokenType.IDENTIFIER);
-        Token eq    = this.expectNextToken(TokenType.EQ);
+        Token id = this.expectNextToken(TokenType.IDENTIFIER);
+        Token eq = this.expectNextToken(TokenType.EQ);
         Token value = this.expectNextToken(TokenType.INTEGER, TokenType.REAL, TokenType.STRING, TokenType.BOOLEAN);
         this.installConstValue(id, value);
         this.expectNextToken(TokenType.SEMICOLON);
@@ -138,7 +147,7 @@ public class Parser {
      * before composite types are defined, so we know the value must be a basic type
      * (integer, real, char, or boolean)
      *
-     * @param id A Token containing a String with the const variable name
+     * @param id    A Token containing a String with the const variable name
      * @param value The value of the const variable (integer, real, char, or boolean)
      */
     private void installConstValue(Token<String> id, Token value) {
@@ -154,6 +163,7 @@ public class Parser {
     /**
      * Parse the section of type definitions: {@code type DEF1; DEF2; ...; DEFN; }
      * and install them in the symbol table.
+     *
      * @see Parser#installType(Token, compiler.Symbol.TypeSymbol)
      */
     private void readTypeSection() {
@@ -165,7 +175,9 @@ public class Parser {
         }
     }
 
-    /** Parse a single type definition {@code ID = TYPE;} */
+    /**
+     * Parse a single type definition {@code ID = TYPE;}
+     */
     private void readTypeDefinition() {
         Token<String> id = this.expectNextToken(TokenType.IDENTIFIER);
         this.expectNextToken(TokenType.EQ);
@@ -202,15 +214,15 @@ public class Parser {
      * Install a type in the symbol table. Forward declarations are a complication
      * here. Consider the following:
      * <div style="margin-left: 2em" >
-     *      {@code pp = ^person;}<br>
-     *      {@code person = record ...; }
+     * {@code pp = ^person;}<br>
+     * {@code person = record ...; }
      * </div>
      * When we see type pp, person is not yet in the symbol table. We use the
      * method {@link compiler.SymbolTable#lookupOrInsertType(String)} to create
      * a "stub" {@link compiler.Symbol.StubWithTypeSymbol} with its type symbol set to null.
      * Therefore, we must check the symbol table before
      *
-     * @param idToken A Token containing a String with the name of the type
+     * @param idToken    A Token containing a String with the name of the type
      * @param typeSymbol A Symbol.TypeSymbol that defines the type. This may represent a
      *                   record, array, pointer, enum, subrange, or another type id.
      */
@@ -366,7 +378,6 @@ public class Parser {
         return recordSymbol;
     }
 
-    // TODO: handle case keyword
     /**
      * Read the fields of a record: {@code FIELD1; FIELD2; ...; FIELDN end;}
      * Notice the location of the final semicolon, and be aware that records
@@ -409,7 +420,7 @@ public class Parser {
             this.expectNextToken(TokenType.COLON);
             Symbol.TypeSymbol type = this.readType();
             LinkedList<Symbol.FieldSymbol> fieldSymbols = new LinkedList<Symbol.FieldSymbol>();
-            for (Token<String> id: idTokens) {
+            for (Token<String> id : idTokens) {
                 fieldSymbols.add(new Symbol.FieldSymbol(id.value, type, 0)); // compute the offsets later
             }
             return fieldSymbols;
@@ -419,6 +430,7 @@ public class Parser {
 
     /**
      * Read a comma separated list of identifiers: {@code ID, ID, ..., ID}
+     *
      * @return A {@link List} of {@link Token} instances containing the identifier strings
      */
     private List<Token<String>> readIdList() {
@@ -452,7 +464,7 @@ public class Parser {
         List<Token<String>> idList = this.readIdList();
         this.expectNextToken(TokenType.COLON);
         Symbol.TypeSymbol typeSymbol = this.readType();
-        for (Token<String> id: idList) {
+        for (Token<String> id : idList) {
             this.installVariable(id, typeSymbol);
         }
     }
@@ -463,7 +475,7 @@ public class Parser {
      * we do not allow variables to have the same name as a type, and we do not
      * allow redeclarations of variables.
      *
-     * @param id A {@link Token} containing the variable identifier
+     * @param id         A {@link Token} containing the variable identifier
      * @param typeSymbol A {@link Symbol.TypeSymbol} that represents the type
      */
     private void installVariable(Token<String> id, Symbol.TypeSymbol typeSymbol) {
@@ -486,6 +498,7 @@ public class Parser {
 
     /**
      * Parse a begin...end block: {@code begin STATEMENT; STATEMENT; ...; STATEMENT; end}.
+     *
      * @return A {@link Token} with type {@link TokenType#PROGN}. Each statement is parsed
      * to a Token as abstract syntax and placed in the {@code children} list of this returned Token.
      */
@@ -507,6 +520,7 @@ public class Parser {
      * Parse a statment: {@code [LABEL:] ASSIGNMENT | BEGIN | IF_THEN_ELSE |
      * CASE | WHILE | REPEAT | FOR | WITH | GOTO}. That is, an optional label followed
      * by one of the kinds of statements.
+     *
      * @return A Token representing the abstract syntax of the parsed code.
      */
     private Token parseStatement() {
@@ -700,14 +714,14 @@ public class Parser {
     /**
      * Construct the abstract syntax representing a for loop.
      *
-     * @param var The variable of iteration
+     * @param var       The variable of iteration
      * @param initValue The initial value of the variable of iteration
-     * @param endValue The value of the variable of iteration which determines when the loop ends.
-     *                 In Pascal, the conditional is inclusive of this value. That is, the condition
-     *                 tested is {@code i <= endValue} or {@code i >= endValue} depending on an
-     *                 increasing or decreasing iteration variable.
-     * @param body The body of the loop
-     * @param isDownTo True if the variable of iteration decreases each iteration
+     * @param endValue  The value of the variable of iteration which determines when the loop ends.
+     *                  In Pascal, the conditional is inclusive of this value. That is, the condition
+     *                  tested is {@code i <= endValue} or {@code i >= endValue} depending on an
+     *                  increasing or decreasing iteration variable.
+     * @param body      The body of the loop
+     * @param isDownTo  True if the variable of iteration decreases each iteration
      * @return A Token of type {@link TokenType#PROGN} whose children are the statements
      * representing the loop.
      */
@@ -742,7 +756,7 @@ public class Parser {
      * This finds the {@link Symbol.BasicTypeSymbol} from the symbol table based
      * on the {@link Token#type} of the given token. This symbol is stored in the
      * {@link Token#datatype} attribute of the token.
-     *
+     * <p/>
      * This works only for the basic types integer, real, string, or boolean.
      */
     private void setBasicDatatype(Token token) {
@@ -764,7 +778,7 @@ public class Parser {
      * these two attributes set for the code generator. Furthermore, we never assign {@code null}
      * to either of these attributes but use {@link Symbol#NULLSYMBOL} instead (this avoids
      * having to check for null in various places).
-     *
+     * <p/>
      * Forward declarations complicate this a bit. We use the function
      * {@link ParserUtil#resolveExprTypeSymbol(compiler.Symbol.TypeSymbol)}
      * to ensure that the {@link Token#datatype} field is never set to be an instance of
@@ -833,19 +847,19 @@ public class Parser {
     /**
      * Parse an expression, which can be any code involving operators. This includes assignment,
      * accessing fields of a record, array references, and function calls.
-     *
+     * <p/>
      * This is implemented as a shift-reduce parser to handle operator precedences. There are a few
      * aspects to be careful about here.
-     *      1. Negation (e.g. {@code -3}) must be supported, so we have to be able to identify where
-     *         a {@link TokenType#MINUS} is actually a negation and not a subtraction.
-     *         I think this can be done reliably by looking at the tokens immediately to the left
-     *         and right of the minus sign. Currently, I have a hack in place that should work
-     *         in many cases (TODO)
-     *      2. We need to identify function identifiers as function calls. This is easy, since any
-     *         identifier token that is a function will have its {@link Token#type} attribute set
-     *         to be {@link TokenType#FUNCALL}
-     *      3. We need to handle array indexing. This is also easy, since brackets always indicate
-     *         an array subscript in Pascal. We call {@link compiler.Parser#parseArrayIndex()} for this.
+     * 1. Negation (e.g. {@code -3}) must be supported, so we have to be able to identify where
+     * a {@link TokenType#MINUS} is actually a negation and not a subtraction.
+     * I think this can be done reliably by looking at the tokens immediately to the left
+     * and right of the minus sign. Currently, I have a hack in place that should work
+     * in many cases (TODO)
+     * 2. We need to identify function identifiers as function calls. This is easy, since any
+     * identifier token that is a function will have its {@link Token#type} attribute set
+     * to be {@link TokenType#FUNCALL}
+     * 3. We need to handle array indexing. This is also easy, since brackets always indicate
+     * an array subscript in Pascal. We call {@link compiler.Parser#parseArrayIndex()} for this.
      *
      * @return A Token representing the expression in abstract syntax.
      * @see Parser#setIdentifierSymbols(Token)
@@ -897,7 +911,7 @@ public class Parser {
             } else if (peek.isOperator()) {
                 token = this.nextToken();
                 while (!operators.isEmpty() && !operators.peek().isDelimiter()
-                        && operators.peek().precedence() >=  token.precedence()) {
+                        && operators.peek().precedence() >= token.precedence()) {
                     reduce(operators, operands);
                 }
                 operators.push(token);
@@ -912,7 +926,6 @@ public class Parser {
         return operands.pop();
     }
 
-    // TODO: check that there are enough operands to avoid null pointers
     /**
      * This pops an operator from operators and pops some number of arguments from operands
      * (one or two depending on the operator, or possibly more for a function call).
@@ -938,7 +951,7 @@ public class Parser {
             op = this.reducePointer(op, lhs);
         } else if (op.isType(TokenType.MINUS) &&      // check for negation
                 (!operators.isEmpty() && operators.peek().isDelimiter()
-                || !operators.isEmpty() && operators.peek().isOperator()
+                        || !operators.isEmpty() && operators.peek().isOperator()
                         && !operators.peek().isType(TokenType.ASSIGN))) {
             lhs = operands.pop();
             op.children.add(lhs);
@@ -983,8 +996,8 @@ public class Parser {
      * Construct a binary tree
      *
      * @param opToken The root of the tree, which should be an operator
-     * @param lhs The left hand child
-     * @param rhs The right hand child
+     * @param lhs     The left hand child
+     * @param rhs     The right hand child
      * @return opToken with lhs and rhs as children
      */
     private Token makeBinaryExpression(Token opToken, Token lhs, Token rhs) {
@@ -1024,14 +1037,13 @@ public class Parser {
         return opToken;
     }
 
-    // TODO: handle multiple arguments
     /**
      * Construct abstract syntax representing a function call. This will check the argument
      * type and either print an error, a warning, or cast the argument as appropriate.
      *
      * @param func The function, which should have {@link Token#symbolTableEntry}
      *             set to a {@link Symbol.FunctionSymbol}
-     * @param arg The argument to the function
+     * @param arg  The argument to the function
      * @return func, with arg as child
      */
     private Token reduceFuncall(Token func, Token arg) {
@@ -1080,7 +1092,7 @@ public class Parser {
     /**
      * Reduce an array subscript expression
      *
-     * @param array An expression which resolves to an array
+     * @param array   An expression which resolves to an array
      * @param indices A list of expressions that index into the array
      *                as returned by {@link compiler.Parser#parseArrayIndex()}
      * @return A Token of type {@link TokenType#AREF} which
@@ -1098,12 +1110,16 @@ public class Parser {
         return arefToken;
     }
 
-    /** Construct abstract syntax representing {@code high - low} */
+    /**
+     * Construct abstract syntax representing {@code high - low}
+     */
     private Token makeHighMinusLow(Token high, Token low) {
         return this.makeBinaryExpression(new Token(TokenType.MINUS), high, low);
     }
 
-    /** Construct abstract syntax representing {@code *high - low) * size} */
+    /**
+     * Construct abstract syntax representing {@code *high - low) * size}
+     */
     private Token makeHighMinusLowTimesSize(Token high, Token low, Token size) {
         return this.makeBinaryExpression(new Token(TokenType.TIMES), this.makeHighMinusLow(high, low), size);
     }
@@ -1114,8 +1130,8 @@ public class Parser {
      * {@code array[3..7]} is a different type than {@code array[2..9]}. Therefore, the
      * offset into the array is computed as {@code (index - low) * size}
      *
-     * @param base The base expression (assume to be an array here)
-     * @param index The index expression into the base expression
+     * @param base        The base expression (assume to be an array here)
+     * @param index       The index expression into the base expression
      * @param arraySymbol A {@link Symbol.ArraySymbol} which has the contained type and
      *                    the subrange we need to construct the array reference
      * @return A Token of type {@link TokenType#AREF}
@@ -1123,10 +1139,10 @@ public class Parser {
      * @see Parser#reduceArrayReferenceList(Token, java.util.List)
      */
     private Token makeArrayReference(Token base, Token index, Symbol.ArraySymbol arraySymbol) {
-        Token lowToken  = this.makeIntegerToken(arraySymbol.subrangeSymbol.low);
+        Token lowToken = this.makeIntegerToken(arraySymbol.subrangeSymbol.low);
         Token sizeToken = this.makeIntegerToken(arraySymbol.containedTypeSymbol.size);
-        Token address   = this.makeHighMinusLowTimesSize(index, lowToken, sizeToken);
-        Token result    = new Token(TokenType.AREF, base, address);
+        Token address = this.makeHighMinusLowTimesSize(index, lowToken, sizeToken);
+        Token result = new Token(TokenType.AREF, base, address);
         result.datatype = ParserUtil.resolveExprTypeSymbol(arraySymbol.containedTypeSymbol);
         return result;
     }
@@ -1135,7 +1151,7 @@ public class Parser {
      * Construct an array reference from base and index. This corresponds to
      * source code {@code base[index]}.
      *
-     * @param base A Token with its datatype a {@link Symbol.ArraySymbol} instance
+     * @param base  A Token with its datatype a {@link Symbol.ArraySymbol} instance
      * @param index An expression that indexes into the array
      * @return A Token of type {@link TokenType#AREF}, or {@link Token#NULLTOKEN}
      * if base is not an array type
@@ -1167,7 +1183,7 @@ public class Parser {
         if (lhs.datatype instanceof Symbol.RecordSymbol) {
             recordSymbol = (Symbol.RecordSymbol) lhs.datatype;
         } else {
-            this.logError("Cannot use dot operator '.' with non-record token '" + lhs.toExprString(4, false)+ "'");
+            this.logError("Cannot use dot operator '.' with non-record token '" + lhs.toExprString(4, false) + "'");
             return Token.NULLTOKEN;
         }
 
@@ -1202,7 +1218,7 @@ public class Parser {
      * and adds the arg to the children of function token.
      *
      * @param func A Token containing the function name new
-     * @param arg A Token containing the argument to the function
+     * @param arg  A Token containing the argument to the function
      * @return A Token representing the abstract syntax {@code (:= id (funcall new size))}
      */
     private Token reduceFunctionNew(Token<String> func, Token<String> arg) {
@@ -1226,7 +1242,7 @@ public class Parser {
      *
      * @param func A {@link Token} of type {@link TokenType#FUNCALL}
      *             named either "write" or "writeln"
-     * @param arg An argument to either the write or writeln function
+     * @param arg  An argument to either the write or writeln function
      * @return The argument func, but with the argument
      */
     private Token reduceFunctionWrite(Token<String> func, Token arg) {
@@ -1256,7 +1272,7 @@ public class Parser {
         if (nextTok.isNull()) {
             printError = true;
         } else {
-            for (TokenType type: expectedTypes)
+            for (TokenType type : expectedTypes)
                 if (nextTok.isType(type))
                     printError = true;
         }
@@ -1296,7 +1312,7 @@ public class Parser {
     /**
      * Get but do not consume the next token. That is, this will return the same token instance
      * every call until {@link compiler.Parser#nextToken()} is called again.
-     *
+     * <p/>
      * (This actually always consumes the next Token in {@link Parser#lexer} and stores it in
      * the "one-token buffer" {@link Parser#savedToken}. This buffer is always checked before
      * peeking at or consuming the next token)

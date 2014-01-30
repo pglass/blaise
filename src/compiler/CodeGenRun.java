@@ -9,7 +9,7 @@ public class CodeGenRun {
     public static boolean DEBUG = false;
 
     public static void parseArgs(String[] args) {
-        for (String s: args) {
+        for (String s : args) {
             if (s.startsWith("-")) {
                 if (s.equals("-d"))
                     DEBUG = true;

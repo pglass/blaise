@@ -11,7 +11,9 @@ import java.util.LinkedHashMap;
  */
 public class SymbolTable {
     public static class SymbolTableException extends Exception {
-        public SymbolTableException(String message) { super(message); }
+        public SymbolTableException(String message) {
+            super(message);
+        }
     }
 
     private LinkedHashMap<String, Symbol> levelZeroTable;
@@ -35,7 +37,7 @@ public class SymbolTable {
 
     public String levelZeroString() {
         StringBuilder sb = new StringBuilder("Symbol Table Level Zero:\n");
-        for (String key: this.levelZeroTable.keySet()) {
+        for (String key : this.levelZeroTable.keySet()) {
             sb.append(this.formatOutput(key, this.levelZeroTable.get(key)));
         }
         return sb.toString();
@@ -43,7 +45,7 @@ public class SymbolTable {
 
     public String levelOneString() {
         StringBuilder sb = new StringBuilder("Symbol Table Level One:\n");
-        for (String key: this.levelOneTable.keySet()) {
+        for (String key : this.levelOneTable.keySet()) {
             sb.append(this.formatOutput(key, this.levelOneTable.get(key)));
         }
         return sb.toString();
@@ -98,31 +100,31 @@ public class SymbolTable {
     }
 
     private void initializeLevelZeroTable() {
-        Symbol.BasicTypeSymbol realType    = new Symbol.BasicTypeSymbol("real",    Symbol.REAL_SIZE);
+        Symbol.BasicTypeSymbol realType = new Symbol.BasicTypeSymbol("real", Symbol.REAL_SIZE);
         Symbol.BasicTypeSymbol integerType = new Symbol.BasicTypeSymbol("integer", Symbol.INT_SIZE);
-        Symbol.BasicTypeSymbol charType    = new Symbol.BasicTypeSymbol("char",    Symbol.CHAR_SIZE);
+        Symbol.BasicTypeSymbol charType = new Symbol.BasicTypeSymbol("char", Symbol.CHAR_SIZE);
         Symbol.BasicTypeSymbol booleanType = new Symbol.BasicTypeSymbol("boolean", Symbol.BOOL_SIZE);
         this.insertSymbolAtLevel(0, realType);
         this.insertSymbolAtLevel(0, integerType);
         this.insertSymbolAtLevel(0, charType);
         this.insertSymbolAtLevel(0, booleanType);
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("exp",      realType, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("sin",      realType, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("cos",      realType, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("sqrt",     realType, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("round",    realType, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("iround",   integerType, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("ord",      integerType, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("new",      integerType, integerType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("write",    Symbol.NULLSYMBOL, charType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writeln",  Symbol.NULLSYMBOL, charType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writef",   Symbol.NULLSYMBOL, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("exp", realType, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("sin", realType, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("cos", realType, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("sqrt", realType, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("round", realType, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("iround", integerType, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("ord", integerType, realType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("new", integerType, integerType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("write", Symbol.NULLSYMBOL, charType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writeln", Symbol.NULLSYMBOL, charType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writef", Symbol.NULLSYMBOL, realType));
         this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writelnf", Symbol.NULLSYMBOL, realType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writei",   Symbol.NULLSYMBOL, integerType));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writei", Symbol.NULLSYMBOL, integerType));
         this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("writelni", Symbol.NULLSYMBOL, integerType));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("read",     Symbol.NULLSYMBOL, Symbol.NULLSYMBOL));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("readln",   Symbol.NULLSYMBOL, Symbol.NULLSYMBOL));
-        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("eof",      booleanType, Symbol.NULLSYMBOL));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("read", Symbol.NULLSYMBOL, Symbol.NULLSYMBOL));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("readln", Symbol.NULLSYMBOL, Symbol.NULLSYMBOL));
+        this.insertSymbolAtLevel(0, new Symbol.FunctionSymbol("eof", booleanType, Symbol.NULLSYMBOL));
     }
 
     public Symbol.BasicTypeSymbol getBasicTypeOf(Token value) throws SymbolTableException {

@@ -11,6 +11,7 @@ public class CodeGen {
 
     /* A map to lookup the appropriate jump instruction for a given comparison */
     private static final HashMap<TokenType, Instruction> jumpMap = new HashMap<TokenType, Instruction>();
+
     static {
         jumpMap.put(TokenType.EQ, Instruction.je);
         jumpMap.put(TokenType.LE, Instruction.jle);
@@ -30,6 +31,7 @@ public class CodeGen {
      * These are the built-in functions that take a double as an argument in the C library implementation.
      */
     private static final HashSet<String> doubleMathFunctions = new HashSet<String>();
+
     static {
         doubleMathFunctions.add("exp");
         doubleMathFunctions.add("sin");
@@ -67,7 +69,9 @@ public class CodeGen {
         this(parser, false);
     }
 
-    /** This only works correctly on the first call */
+    /**
+     * This only works correctly on the first call
+     */
     public void write(PrintStream stream) throws RegisterManager.RegisterAllocationException {
         this.asmWriter = new ASMWriter(stream);
 
@@ -123,7 +127,7 @@ public class CodeGen {
             // ignore the program identifier and input/output: `program graph1(output)`
             genCode(tok.getChild(2));
         } else if (tok.isType(TokenType.PROGN)) {
-            for (Token t: (List<Token>) tok.children) {
+            for (Token t : (List<Token>) tok.children) {
                 genCode(t);
             }
         } else if (tok.isType(TokenType.ASSIGN)) {
@@ -167,7 +171,7 @@ public class CodeGen {
     private ASMOperand handleAref(Token tok) throws RegisterManager.RegisterAllocationException {
         ASMOperand left = genExpr(tok.getChild(0));
         ASMOperand right = genExpr(tok.getChild(1));
-        assert(tok.getChild(1).datatype.name.equals("integer"));
+        assert (tok.getChild(1).datatype.name.equals("integer"));
 
         left.addConstraint(ASMOperand.Constraint.noDereference);
         this.asmWriter.print(Instruction.add, left, right);
@@ -196,7 +200,7 @@ public class CodeGen {
 
     private ASMOperand handleIdentifier(Token tok) throws RegisterManager.RegisterAllocationException {
         // variables are stored at the beginning of the stack
-        assert(tok.symbolTableEntry instanceof Symbol.VarSymbol);
+        assert (tok.symbolTableEntry instanceof Symbol.VarSymbol);
         Symbol.VarSymbol varSymbol = (Symbol.VarSymbol) tok.symbolTableEntry;
         ASMOperand address = new ASMOperand(this.registerManager.acquireRegister(Register.Type.INT));
         this.asmWriter.mov(address, ASMOperand.EBP);
@@ -218,7 +222,7 @@ public class CodeGen {
                 this.asmWriter.setComment(tok.getChild(0).value + " = " + right);
             this.asmWriter.print(Instruction.fstp, left);
         } else if (left.isMem() && right.isMem()) { /* Handle memory to memory assignment */
-            if (!left.equals(right)){  // don't bother moving a memory location to itself
+            if (!left.equals(right)) {  // don't bother moving a memory location to itself
                 ASMOperand tmp = new ASMOperand(this.registerManager.acquireRegister(Register.Type.INT));
                 this.asmWriter.mov(tmp, right);
                 if (tok.getChild(0).isType(TokenType.IDENTIFIER))
@@ -278,7 +282,7 @@ public class CodeGen {
             return ASMOperand.ST0;
         } else if (tok.isType(TokenType.CASTINT)) {
             ASMOperand arg = this.genExpr(tok.getChild(0));
-            assert(arg.getRegister().equals(Register.st0));
+            assert (arg.getRegister().equals(Register.st0));
             ASMOperand tmpMem = new ASMOperand(ASMOperand.Type.memory, ASMOperand.INT_SIZE,
                     this.tempStorageManager.acquireTempStorage(ASMOperand.INT_SIZE.bytes()));
             this.asmWriter.print(Instruction.fistp, tmpMem);
@@ -310,7 +314,7 @@ public class CodeGen {
     }
 
     private ASMOperand handleFuncall(Token tok) throws RegisterManager.RegisterAllocationException {
-        assert(tok.symbolTableEntry instanceof Symbol.FunctionSymbol);
+        assert (tok.symbolTableEntry instanceof Symbol.FunctionSymbol);
         Symbol.FunctionSymbol functionSymbol = (Symbol.FunctionSymbol) tok.symbolTableEntry;
 
         /* save EAX if in use (don't mark it as free so we can restore it later) */
@@ -355,10 +359,10 @@ public class CodeGen {
     }
 
     private int pushFunctionArgs(Token tok) throws RegisterManager.RegisterAllocationException {
-        assert(tok.isType(TokenType.FUNCALL));
+        assert (tok.isType(TokenType.FUNCALL));
         int offsetTotal = 0;
         // todo: push args in reverse order
-        for (Token t: (List<Token>) tok.children) {
+        for (Token t : (List<Token>) tok.children) {
             ASMOperand op = genExpr(t);
             if (op.type().equals(ASMOperand.Type.register) && op.getRegister().equals(Register.st0)) {
                 this.asmWriter.makeStackRoom(ASMOperand.REAL_SIZE.bytes());

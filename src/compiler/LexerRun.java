@@ -14,7 +14,7 @@ public class LexerRun {
                 while (lexer.hasMoreInput()) {
                     if (tok != null)
                         System.out.println(tok);
-                        tok = lexer.nextToken();
+                    tok = lexer.nextToken();
                 }
             } catch (FileNotFoundException e) {
                 System.out.println(e.getMessage());

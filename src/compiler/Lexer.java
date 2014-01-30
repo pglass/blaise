@@ -1,6 +1,9 @@
 package compiler;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PushbackReader;
 
 public class Lexer {
     private static final boolean DEBUG = false;
@@ -24,7 +27,7 @@ public class Lexer {
     }
 
     public Token nextToken() {
-        while (this.consumeWhitespace() || this.consumeComment());
+        while (this.consumeWhitespace() || this.consumeComment()) ;
 
         Token t;
         if ((t = this.readIdentifier()) != null) {
@@ -149,8 +152,8 @@ public class Lexer {
         builder.append(this.readDigitString());
         if (this.peekChar() == '.' && this.peek2Char() != '.') {    // 1..10 parses as '1', '..', '10'
             builder.append(this.nextChar())
-                   .append(this.readDigitString())
-                   .append(this.readExponentString());
+                    .append(this.readDigitString())
+                    .append(this.readExponentString());
             return this.parseDoubleToken(builder.toString());
         } else if (this.peekChar() == 'e' || this.peekChar() == 'E') {
             builder.append(this.readExponentString());

@@ -36,10 +36,12 @@ public abstract class Symbol {
 
     public static abstract class TypeSymbol extends Symbol {
         int size;
+
         public TypeSymbol(String name, int size) {
             super(name);
             this.size = size;
         }
+
         public String toString() {
             return super.toString() + " size=" + this.size;
         }
@@ -62,17 +64,21 @@ public abstract class Symbol {
     /* Used for forward declarations */
     public static class StubWithTypeSymbol extends TypeSymbol {
         public TypeSymbol typeSymbol;
+
         public StubWithTypeSymbol(String name, TypeSymbol typeSymbol) {
             super(name, typeSymbol.size);
             this.typeSymbol = typeSymbol;
         }
+
         public void setTypeSymbol(TypeSymbol symbol) {
             this.typeSymbol = symbol;
             this.size = symbol.size;
         }
+
         public String toString() {
             return super.toString() + "\n\t typeSymbol=" + this.typeSymbol.toString();
         }
+
         public String toSimpleString() {
             return super.toSimpleString() + " " + this.typeSymbol.name;
         }
@@ -87,11 +93,13 @@ public abstract class Symbol {
     public static class FunctionSymbol extends DefinedSymbol {
         public TypeSymbol resultType;
         public TypeSymbol[] argTypes;
+
         public FunctionSymbol(String name, TypeSymbol resultType, TypeSymbol... argTypes) {
             super(name);
             this.resultType = resultType;
             this.argTypes = argTypes;
         }
+
         public String toString() {
             String s = super.toString() + " resultType=" + this.resultType.name + " argTypes=[";
             if (this.argTypes.length > 0) {
@@ -108,16 +116,19 @@ public abstract class Symbol {
         public int size;
         public int offset;
         public TypeSymbol typeSymbol;
+
         public VarSymbol(String name, TypeSymbol typeSymbol) {
             super(name);
             this.size = typeSymbol.size;
             this.offset = 0;  // this is set after construction
             this.typeSymbol = typeSymbol;
         }
+
         public String toString() {
             return super.toString() + " size=" + this.size + " offset=" + this.offset
                     + " typeSymbol=" + this.typeSymbol.name;
         }
+
         public String toSimpleString() {
             return super.toSimpleString() + " " + this.typeSymbol.name;
         }
@@ -127,12 +138,14 @@ public abstract class Symbol {
         public int size;
         public T value;
         public TypeSymbol typeSymbol;
+
         public ConstSymbol(String name, T value, TypeSymbol typeSymbol) {
             super(name);
             this.size = typeSymbol.size;
             this.value = value;
             this.typeSymbol = typeSymbol;
         }
+
         public String toString() {
             return super.toString() + " value=" + this.value + " " + this.typeSymbol.name;
         }
@@ -147,11 +160,13 @@ public abstract class Symbol {
     public static class PointerSymbol extends TypeSymbol {
         public TypeSymbol typeSymbol;
         private static int numPointers = 0;
+
         public PointerSymbol(TypeSymbol typeSymbol) {
             super("{POINTER " + (++numPointers) + "}", POINTER_SIZE);
             numPointers += 1;
             this.typeSymbol = typeSymbol;
         }
+
         public String toString() {
             return super.toString() + " typeSymbol=" + this.typeSymbol;
         }
@@ -165,13 +180,15 @@ public abstract class Symbol {
     public static class RecordSymbol extends TypeSymbol {
         public FieldSymbol[] fieldTypes;
         private static int numRecords = 0;  // for (unnecessary) display purposes
+
         public RecordSymbol(FieldSymbol[] fieldTypes) {
             super("{RECORD " + (++numRecords) + "}", 0);
             this.fieldTypes = fieldTypes;
-            for (FieldSymbol field: fieldTypes)
+            for (FieldSymbol field : fieldTypes)
                 this.size += field.size;
             this.size = ParserUtil.alignAddress(this.size, ParserUtil.alignSize(this));
         }
+
         public String toString() {
             String s = super.toString() + " fieldTypes=[";
             if (this.fieldTypes.length > 0) {
@@ -182,15 +199,17 @@ public abstract class Symbol {
             s += "]";
             return s;
         }
+
         public FieldSymbol getField(String fieldName) {
-            for (Symbol.FieldSymbol fieldSymbol: this.fieldTypes) {
+            for (Symbol.FieldSymbol fieldSymbol : this.fieldTypes) {
                 if (fieldSymbol.name.equals(fieldName))
                     return fieldSymbol;
             }
             return null;
         }
+
         public FieldSymbol getFieldByOffset(int offset) throws SymbolTable.SymbolTableException {
-            for (FieldSymbol fieldSymbol: this.fieldTypes) {
+            for (FieldSymbol fieldSymbol : this.fieldTypes) {
                 if (fieldSymbol.offset == offset)
                     return fieldSymbol;
             }
@@ -203,11 +222,13 @@ public abstract class Symbol {
     public static class FieldSymbol extends TypeSymbol {
         public int offset;
         public TypeSymbol typeSymbol;
+
         public FieldSymbol(String name, TypeSymbol typeSymbol, int offset) {
             super(name, ParserUtil.alignSize(typeSymbol));
             this.typeSymbol = typeSymbol;
             this.offset = offset;
         }
+
         public String toString() {
             return super.toString() + " offset=" + this.offset + " typeSymbol=" + typeSymbol.name;
         }
@@ -217,14 +238,17 @@ public abstract class Symbol {
         public int low;
         public int high;
         private static int numSubranges = 0; // for display purposes
+
         public SubrangeSymbol(int low, int high) {
             super("{SUBRANGE " + (++numSubranges) + "}", INT_SIZE);
             this.low = low;
             this.high = high;
         }
+
         public int intervalSize() {
             return this.high - this.low + 1;
         }
+
         public String toString() {
             return super.toString() + " low=" + this.low + " high=" + this.high;
         }
@@ -234,6 +258,7 @@ public abstract class Symbol {
         public SubrangeSymbol subrangeSymbol;
         public TypeSymbol containedTypeSymbol;
         private static int numArrays = 0;   // for display purposes
+
         public ArraySymbol(SubrangeSymbol subrangeSymbol, TypeSymbol containedTypeSymbol) {
             super("{ARRAY " + (++numArrays) + "}", subrangeSymbol.intervalSize() * containedTypeSymbol.size);
             this.subrangeSymbol = subrangeSymbol;

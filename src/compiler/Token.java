@@ -14,36 +14,37 @@ public class Token<T> {
     public static final Hashtable<String, TokenType> TYPE_MAP = new Hashtable<String, TokenType>();
     /* Precedences for the operator precedence parser */
     public static final Hashtable<TokenType, Integer> PRECEDENCES = new Hashtable<TokenType, Integer>();
+
     static {
-        for (TokenType t: TokenType.values()) {
+        for (TokenType t : TokenType.values()) {
             if (t.stringRepr != null)
                 TYPE_MAP.put(t.stringRepr, t);
             Token.FORMAT_WIDTH = Math.max(t.name().length(), FORMAT_WIDTH);
         }
         Token.FORMAT_WIDTH += 1;
-        PRECEDENCES.put(TokenType.ASSIGN,  1);
-        PRECEDENCES.put(TokenType.EQ,      2);
-        PRECEDENCES.put(TokenType.NE,      2);
-        PRECEDENCES.put(TokenType.LT,      2);
-        PRECEDENCES.put(TokenType.LE,      2);
-        PRECEDENCES.put(TokenType.GT,      2);
-        PRECEDENCES.put(TokenType.GE,      2);
-        PRECEDENCES.put(TokenType.IN,      2);
-        PRECEDENCES.put(TokenType.PLUS,    3);
-        PRECEDENCES.put(TokenType.MINUS,   3);
-        PRECEDENCES.put(TokenType.OR,      3);
-        PRECEDENCES.put(TokenType.TIMES,   4);
-        PRECEDENCES.put(TokenType.DIVIDE,  4);
-        PRECEDENCES.put(TokenType.AND,     4);
-        PRECEDENCES.put(TokenType.DIV,     4);
-        PRECEDENCES.put(TokenType.MOD,     4);
-        PRECEDENCES.put(TokenType.NOT,     5);
-        PRECEDENCES.put(TokenType.DOT,     6);
+        PRECEDENCES.put(TokenType.ASSIGN, 1);
+        PRECEDENCES.put(TokenType.EQ, 2);
+        PRECEDENCES.put(TokenType.NE, 2);
+        PRECEDENCES.put(TokenType.LT, 2);
+        PRECEDENCES.put(TokenType.LE, 2);
+        PRECEDENCES.put(TokenType.GT, 2);
+        PRECEDENCES.put(TokenType.GE, 2);
+        PRECEDENCES.put(TokenType.IN, 2);
+        PRECEDENCES.put(TokenType.PLUS, 3);
+        PRECEDENCES.put(TokenType.MINUS, 3);
+        PRECEDENCES.put(TokenType.OR, 3);
+        PRECEDENCES.put(TokenType.TIMES, 4);
+        PRECEDENCES.put(TokenType.DIVIDE, 4);
+        PRECEDENCES.put(TokenType.AND, 4);
+        PRECEDENCES.put(TokenType.DIV, 4);
+        PRECEDENCES.put(TokenType.MOD, 4);
+        PRECEDENCES.put(TokenType.NOT, 5);
+        PRECEDENCES.put(TokenType.DOT, 6);
         PRECEDENCES.put(TokenType.POINTER, 6);
         PRECEDENCES.put(TokenType.FUNCALL, 7);
     }
 
-	public TokenType type;
+    public TokenType type;
     public T value;
     public LinkedList<Token> children;
     public Symbol.TypeSymbol datatype;   // the type of the expression
@@ -61,11 +62,13 @@ public class Token<T> {
         this.symbolTableEntry = symbolTableEntry;
     }
 
-	public Token(TokenType type) {
+    public Token(TokenType type) {
         this.init(type, null, new LinkedList<Token>(), Symbol.NULLSYMBOL, Symbol.NULLSYMBOL);
-	}
+    }
 
-    /** Copy constructor */
+    /**
+     * Copy constructor
+     */
     public Token(Token<T> tok) {
         this.init(tok.type, tok.value, new LinkedList<Token>(), tok.datatype, tok.symbolTableEntry);
         this.children.addAll(tok.children);
@@ -90,7 +93,8 @@ public class Token<T> {
         Collections.addAll(this.children, children);
     }
 
-    /** Get the precedence of this Token
+    /**
+     * Get the precedence of this Token
      *
      * @return An integer representing the precedence of this Token,
      * which is null if the token is not an operator
@@ -100,13 +104,14 @@ public class Token<T> {
         return PRECEDENCES.get(this.type);
     }
 
-    /** Test the type of this Token
+    /**
+     * Test the type of this Token
      *
      * @param types Any number of {@link TokenType} instances
      * @return True only if the type of this Token matches any of the given types
      */
     public boolean isType(TokenType... types) {
-        for (TokenType t: types)
+        for (TokenType t : types)
             if (t.ordinal() == this.type.ordinal())
                 return true;
         return false;
@@ -116,29 +121,31 @@ public class Token<T> {
         return this.children.get(index);
     }
 
-    /** Returns true if this token has type {@link TokenType#NULL} */
+    /**
+     * Returns true if this token has type {@link TokenType#NULL}
+     */
     public boolean isNull() {
         return this.isType(TokenType.NULL);
     }
 
-	boolean isOperator() {
-		return TokenType.MIN_OP.ordinal() < this.type.ordinal() 
-			&& this.type.ordinal() < TokenType.MAX_OP.ordinal();
-	}
-	
-	boolean isLiteral() {
-		return TokenType.MIN_LITERAL.ordinal() < this.type.ordinal()
-				&& this.type.ordinal() < TokenType.MAX_LITERAL.ordinal();
-	}
-	
-	boolean isDelimiter() {
-		return TokenType.MIN_DELIM.ordinal() < this.type.ordinal() 
-				&& this.type.ordinal() < TokenType.MAX_DELIM.ordinal();
-	}
+    boolean isOperator() {
+        return TokenType.MIN_OP.ordinal() < this.type.ordinal()
+                && this.type.ordinal() < TokenType.MAX_OP.ordinal();
+    }
+
+    boolean isLiteral() {
+        return TokenType.MIN_LITERAL.ordinal() < this.type.ordinal()
+                && this.type.ordinal() < TokenType.MAX_LITERAL.ordinal();
+    }
+
+    boolean isDelimiter() {
+        return TokenType.MIN_DELIM.ordinal() < this.type.ordinal()
+                && this.type.ordinal() < TokenType.MAX_DELIM.ordinal();
+    }
 
     public static String padString(String s, int width) {
-        if (width-1 > 0)
-            return String.format("%1$-" + (width-1) + "s", s);
+        if (width - 1 > 0)
+            return String.format("%1$-" + (width - 1) + "s", s);
         return "";
     }
 
@@ -153,7 +160,7 @@ public class Token<T> {
             s += " " + this.value.toString();
         if (this.datatype != null)
             s += " type=" + this.datatype.toSimpleString();
-        for (Token t: this.children) {
+        for (Token t : this.children) {
             if (singleLine)
                 s += " ";
             else
@@ -164,7 +171,7 @@ public class Token<T> {
         return s;
     }
 
-	public String toString() {
+    public String toString() {
         String s = padString(this.type.name(), FORMAT_WIDTH);
         if (this.value != null) {
             if (this.type == TokenType.STRING)
@@ -173,7 +180,7 @@ public class Token<T> {
                 s += " : " + this.value.toString();
         }
         return s;
-	}
+    }
 
     public static TokenType lookupTokenType(String str) {
         return Token.TYPE_MAP.get(str);
