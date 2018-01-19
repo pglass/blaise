@@ -1,0 +1,1 @@
+extern _write, _writeln, _writef, _writei, _writelnf, _writelni, _new, _iround, _exp, _sin, _sqrt, _cos, _round, _iround, _ord, _exp32, _sin32, _cos32, _round32, _sqrt32, _exp32, _iround32, _writef32, _writelnf32
